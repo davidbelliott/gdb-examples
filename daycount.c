@@ -7,7 +7,8 @@
 #define TRUE 1
 #define FALSE 0
 
-const int MONTH_DAYS[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30};
+// Number of days in each month, starting from January
+const int MONTH_DAYS[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 const int FEB_DAYS_LEAP = 29;
 
 typedef struct date_t {
@@ -20,6 +21,7 @@ typedef struct date_array_t {
     int count;
 } date_array_t;
 
+// Returns TRUE if the given year is a leap year, FALSE otherwise.
 int is_leap_year(int year) {
     if (year % 4) {    // not divisible by 4 -> not a leap year
         return FALSE;
@@ -33,18 +35,20 @@ int is_leap_year(int year) {
     return FALSE;
 }
 
+// Return the number of days in the specified month on the given year.
 int get_n_days(int year, int month) {
     int leap = is_leap_year(year);
     int n_days;
     if (month != 2) {
-        n_days = MONTH_DAYS[month];
+        n_days = MONTH_DAYS[month - 1];
     } else {
-        n_days = (leap = TRUE ? FEB_DAYS_LEAP : MONTH_DAYS[month]);
+        n_days = (leap == TRUE ? FEB_DAYS_LEAP : MONTH_DAYS[month - 1]);
     }
     return n_days;
 }
 
-void load_dates(FILE *input, date_array_t *dates) {
+// Loads a list of year month pairs from an input file.
+void load_dates(FILE *input, date_array_t *date_array) {
     int count;
     if (fscanf(input, "%d", &count) != 1) {
         fprintf(stderr, "error:  couldn't read count from input list\n");
@@ -56,58 +60,33 @@ void load_dates(FILE *input, date_array_t *dates) {
         exit(1);
     }
 
-    float *values = malloc(count * sizeof(float));
-    if (values == NULL) {
-        printf("ERROR:  couldn't allocate %u bytes!\n",
-               (unsigned int) (count * sizeof(float)));
+    date_t *dates = malloc(count * sizeof(date_t));
+    if (dates == NULL) {
+        fprintf(stderr, "error:  couldn't allocate memory\n");
         exit(1);
     }
 
-    /* Zero out the newly allocated memory. */
-    memset(values, 0, count * sizeof(float));
-
-    /* Load each floating-point value into its corresponding location
-     * in the array.
-     */
-    for (i = 0; i < count; i++) {
-        if (fscanf(input, "%f", &value) != 1) {
+    memset(dates, 0, count * sizeof(date_t));
+    for (int i = 0; i < count; i++) {
+        date_t thisdate;
+        if (fscanf(input, "%d %d", &thisdate.year, &thisdate.month) != 2) {
             printf("ERROR:  couldn't read a value from input list\n");
             exit(1);
         }
-
-        values[i] = value;
+        dates[i] = thisdate;
     }
 
-    /* Finally, store the loaded values into the passed-in struct. */
-    floats->count = count;
-    floats->values = values;
-}
-
-void usage(const char* progname) {
-    fprintf(stderr, "usage: %s year month\n", progname);
-    fprintf(stderr, "\tyear: the year (all 4 digits)\n");
-    fprintf(stderr, "\tmonth: the month (1-12)\n");
+    date_array->count = count;
+    date_array->dates = dates;
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        usage(argv[0]);
-        return 1;
+    date_array_t da;
+    load_dates(stdin, &da);
+    for(int i = 0; i < da.count; i++) {
+        int n_days = get_n_days(da.dates[i].year, da.dates[i].month);
+        printf("%d %d: %d\n", da.dates[i].year, da.dates[i].month,n_days);
     }
-    char *ptr;
-    int year = strtol(argv[1], &ptr, NUMBER_BASE);
-    if (ptr != argv[1] + strlen(argv[1])) {
-        fprintf(stderr, "error: %s not a valid year\n", argv[1]);
-        usage(argv[0]);
-        return 1;
-    }
-    int month = strtol(argv[2], &ptr, NUMBER_BASE);
-    if (ptr != argv[2] + strlen(argv[2])) {
-        fprintf(stderr, "error: %s not a valid month\n", argv[2]);
-        usage(argv[0]);
-        return 1;
-    }
-    int n_days = get_n_days(year, month);
-    printf("%d\n", n_days);
+    free(da.dates);
     return 0;
 }
