@@ -60,13 +60,13 @@ void load_dates(FILE *input, date_array_t *date_array) {
         exit(1);
     }
 
-    date_t *dates = malloc(count * sizeof(date_t));
+    date_t *dates = malloc(count);
     if (dates == NULL) {
         fprintf(stderr, "error:  couldn't allocate memory\n");
         exit(1);
     }
 
-    memset(dates, 0, count * sizeof(date_t));
+    memset(dates, 0, count);
     for (int i = 0; i < count; i++) {
         date_t thisdate;
         if (fscanf(input, "%d %d", &thisdate.year, &thisdate.month) != 2) {
@@ -87,6 +87,5 @@ int main(int argc, char *argv[]) {
         int n_days = get_n_days(da.dates[i].year, da.dates[i].month);
         printf("%d %d: %d\n", da.dates[i].year, da.dates[i].month,n_days);
     }
-    free(da.dates);
     return 0;
 }
