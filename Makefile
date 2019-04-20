@@ -1,7 +1,9 @@
-all: daycount
+CC = gcc
+CFLAGS = -Wall -Werror
+
 
 daycount: daycount.c
-	gcc -o daycount daycount.c -Wall -Werror -g
+	$(CC) $(CFLAGS) -o daycount daycount.c
 
 clean:
 	rm -f daycount
