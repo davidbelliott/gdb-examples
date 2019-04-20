@@ -42,7 +42,7 @@ int get_n_days(int year, int month) {
     if (month != 2) {
         n_days = MONTH_DAYS[month - 1];
     } else {
-        n_days = (leap == TRUE ? FEB_DAYS_LEAP : MONTH_DAYS[month - 1]);
+        n_days = (leap = TRUE ? FEB_DAYS_LEAP : MONTH_DAYS[month - 1]);
     }
     return n_days;
 }
