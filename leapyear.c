@@ -14,7 +14,7 @@ int is_leap_year(int year) {
     if (year % 100) {   // divisible by 4 but not 100 -> leap year
         return TRUE;
     }
-    if (!(year % 400)) {   // year is evenly divisible by 400
+    if (!(year % 400)) {   // divisible by 400 -> leap year
         return TRUE;
     }
     return FALSE;
